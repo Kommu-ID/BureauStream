@@ -14,7 +14,16 @@ export const appRouter = router({
     z.object({
       username: z.string().max(255),
       password: z.string().max(255),
-    })
+      confirmPassword: z.string().max(255),
+    }).superRefine(({ confirmPassword, password }, ctx) => {
+        if (confirmPassword !== password) {
+          ctx.addIssue({
+            code: "custom",
+            message: "The passwords did not match",
+            path: ['confirmPassword']
+          });
+        }
+      })
   ).mutation(async (opts) => {
     const hashedPassword = await argon2.hash(opts.input.password)
     const user: typeof usersTable.$inferInsert = {
@@ -25,7 +34,12 @@ export const appRouter = router({
     return {
       id: result.id,
       name: result.name,
-      username: result.username
+      username: result.username,
+      accessToken: createJwt({
+        username: result.username,
+        sub: result.id,
+        role:'user'
+      })
     }
   }),
   login: procedure.input(
@@ -34,15 +48,15 @@ export const appRouter = router({
       password: z.string().max(255),
     })
   ).mutation(async (opts) => {
-    const admin = await db.query.adminsTable.findFirst({
+    const user = await db.query.usersTable.findFirst({
       where: eq(usersTable.username, opts.input.username)
     })
-    if (!admin) {
+    if (!user) {
       throw new TRPCError({
         message: 'Wrong username or password!', code:'UNAUTHORIZED'
       })
     }
-    const passwordIsValid = await argon2.verify(admin.password, opts.input.password)
+    const passwordIsValid = await argon2.verify(user.password, opts.input.password)
     if (!passwordIsValid) {
       throw new TRPCError({
         message: 'Wrong username or password!', code:'UNAUTHORIZED'
@@ -50,9 +64,9 @@ export const appRouter = router({
     }
     return {
       accessToken: createJwt({
-        username:admin.username,
-        sub:admin.id,
-        role:'admin'
+        username:user.username,
+        sub:user.id,
+        role:'user'
       })
     }
   })

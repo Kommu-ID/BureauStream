@@ -1,11 +1,14 @@
-import { MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
+import { LandmarkIcon, MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
 
 const UserSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="font-extrabold px-2 py-4 text-2xl">
+        <div className="px-2 py-4 flex items-center gap-2 font-medium">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <LandmarkIcon className="size-4" />
+          </div>
           BureauStream
         </div>
         <SidebarSeparator />

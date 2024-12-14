@@ -1,17 +1,20 @@
-import { BookOpenCheckIcon, MessageSquarePlusIcon, MessagesSquareIcon, WorkflowIcon } from "lucide-react";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
+import { MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
 
 const UserSidebar = () => {
   return (
     <Sidebar>
       <SidebarHeader>
-        hehe
+        <div className="font-extrabold px-2 py-4 text-2xl">
+          AI-ASN
+        </div>
+        <SidebarSeparator />
       </SidebarHeader>
       <SidebarContent>
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive>
                 <a href="#">
                   <MessageSquarePlusIcon />
                   <span>New consultation</span>

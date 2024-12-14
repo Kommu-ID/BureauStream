@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { AppType } from 'next/app';
 import { ThemeProvider } from 'next-themes'
 import { trpc } from '../utils/trpc';
+import { AuthProvider } from "@/components/auth-provider";
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ThemeProvider
@@ -11,7 +12,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       enableSystem
       disableTransitionOnChange
     >
-      <Component {...pageProps} />
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
     </ThemeProvider>
   );
 };

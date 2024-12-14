@@ -6,7 +6,7 @@ const UserSidebar = () => {
     <Sidebar>
       <SidebarHeader>
         <div className="font-extrabold px-2 py-4 text-2xl">
-          AI-ASN
+          BureauStream
         </div>
         <SidebarSeparator />
       </SidebarHeader>

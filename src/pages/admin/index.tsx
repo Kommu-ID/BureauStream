@@ -1,11 +1,11 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import UserSidebar from '@/components/user-sidebar';
-import { Separator } from '@/components/ui/separator';
+import AdminSidebar from "@/components/admin-sidebar";
+import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function IndexPage() {
+export default function AdminPage() {
   return (
     <SidebarProvider>
-      <UserSidebar />
+      <AdminSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-3">
@@ -14,7 +14,7 @@ export default function IndexPage() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          User Page
+          Admin Page
         </div>
       </SidebarInset>
     </SidebarProvider>

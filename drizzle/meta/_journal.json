@@ -8,6 +8,13 @@
       "when": 1734188846441,
       "tag": "0000_jazzy_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1734230583539,
+      "tag": "0001_chunky_wildside",
+      "breakpoints": true
     }
   ]
 }

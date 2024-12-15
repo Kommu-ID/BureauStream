@@ -7,8 +7,10 @@ import * as argon2 from 'argon2';
 import { TRPCError } from '@trpc/server';
 import { createJwt } from '../jwt';
 import { eq } from 'drizzle-orm';
+import { userRouter } from './user';
 export const appRouter = router({
   admin: adminRouter,
+  user: userRouter,
 
   register: procedure.input(
     z.object({
@@ -69,7 +71,7 @@ export const appRouter = router({
         role:'user'
       })
     }
-  })
+  }),
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

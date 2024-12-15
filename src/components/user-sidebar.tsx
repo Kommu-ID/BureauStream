@@ -1,7 +1,11 @@
 import { LandmarkIcon, MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
 
-const UserSidebar = () => {
+export type UserSidebarProps = {
+  activeConversationId?: string
+}
+
+const UserSidebar = ({ activeConversationId }: UserSidebarProps) => {
   return (
     <Sidebar>
       <SidebarHeader>
@@ -17,7 +21,7 @@ const UserSidebar = () => {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
+              <SidebarMenuButton asChild isActive={!activeConversationId}>
                 <a href="#">
                   <MessageSquarePlusIcon />
                   <span>New consultation</span>

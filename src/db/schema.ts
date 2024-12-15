@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, varchar, json } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, json, date } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: uuid().primaryKey().defaultRandom(),
@@ -27,6 +27,8 @@ export const conversationsTable = pgTable("conversations", {
   service_state: json(),
   user_id: uuid().notNull(),
   messages: json(),
+  created_at: date().defaultNow(),
+  modified_at: date().defaultNow(),
 })
 
 export const usersRelations = relations(usersTable, ({ many }) => ({

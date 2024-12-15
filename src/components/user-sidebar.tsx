@@ -1,11 +1,36 @@
 import { LandmarkIcon, MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
+import { useMemo } from "react";
+import Link from "next/link";
+
+const convoIdMap: Record<string, string> = {
+  '1001': 'Marriage certificate request',
+  '1002': 'Veteran ID application',
+}
+
+type Convo = {
+  id: string,
+  service_id: string | null,
+  service_state?: unknown,
+}
 
 export type UserSidebarProps = {
   activeConversationId?: string
+  serviceConvoList: Array<Convo>
 }
 
-const UserSidebar = ({ activeConversationId }: UserSidebarProps) => {
+const UserSidebar = ({ activeConversationId, serviceConvoList }: UserSidebarProps) => {
+  const { ongoing, archive } = useMemo(() => {
+    return serviceConvoList.reduce<{
+      ongoing: Array<Convo>,
+      archive: Array<Convo>
+    }>((obj, convo) => {
+        const status = convo.service_state && typeof convo.service_state === 'object' && 'status' in convo.service_state && convo.service_state.status
+        if (status === 'ongoing') return {...obj, ongoing: [...obj.ongoing, convo]}
+        return {...obj, archive: [...obj.archive, convo]}
+      }, { ongoing: [], archive: []})
+  }, [serviceConvoList])
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -22,44 +47,52 @@ const UserSidebar = ({ activeConversationId }: UserSidebarProps) => {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={!activeConversationId}>
-                <a href="#">
+                <Link href="/">
                   <MessageSquarePlusIcon />
                   <span>New consultation</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarGroup>
-          <SidebarGroupLabel>Ongoing service requests</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <a href="#">
-                      <MessagesSquareIcon />
-                      <span>Applying for Marriage Certificate</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Archives</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <a href="#">
-                      <MessagesSquareIcon />
-                      <span>Applying for Veteran ID</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {ongoing.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Ongoing service requests</SidebarGroupLabel>
+            <SidebarGroupContent>
+              {ongoing.map(convo => (
+                <SidebarMenu key={convo.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={activeConversationId === convo.id}>
+                      <Link href={`/conversation/${convo.id}`}>
+                        <MessagesSquareIcon />
+                        <span>{convoIdMap[convo.service_id ?? ''] ?? ''}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              ))}
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+        {archive.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Archives</SidebarGroupLabel>
+            <SidebarGroupContent>
+              {archive.map(convo => (
+                <SidebarMenu key={convo.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={activeConversationId === convo.id}>
+                      <Link href={`/conversation/${convo.id}`}>
+                        <MessagesSquareIcon />
+                        <span>{convoIdMap[convo.service_id ?? ''] ?? ''}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              ))}
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

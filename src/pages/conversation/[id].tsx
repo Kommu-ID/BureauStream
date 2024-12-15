@@ -12,28 +12,26 @@ import { ChatMessageList } from '@/components/ui/chat/chat-message-list';
 import { useRouter } from 'next/router';
 import { Markdown } from '@/components/markdown';
 
-export default function IndexPage() {
-  const router = useRouter()
-  const addMessageMutation = trpc.user.mainConvoAddMessage.useMutation()
-  const convo = trpc.user.mainConvo.useQuery()
-  const serviceConvos = trpc.user.serviceConvoList.useQuery()
+export default function ConversationPage() {
+  const {query} = useRouter()
+  const conversationId = typeof query.id === 'string' ? query.id : ''
+
+  const addMessageMutation = trpc.user.serviceConvoAddMessage.useMutation()
+  const convos = trpc.user.serviceConvoList.useQuery()
+  const convo = convos.data?.find(c => c.id === conversationId)
   const [messages, setMessages] = useState<unknown>()
 
   const onSubmit = useCallback(async (formData: FormData) => {
     const message = formData.get('message')?.toString()
     if (!message) return;
     const newMessages = await addMessageMutation.mutateAsync({ message })
-    if (newMessages.service_id) {
-      router.replace(`/conversation/${newMessages.id}`)
-      return 
-    }
     setMessages(newMessages.messages)
-  }, [addMessageMutation, router])
+  }, [addMessageMutation])
 
   useEffect(() => {
-    if (!convo.data?.messages) return
-    setMessages(convo.data?.messages)
-  }, [convo.data?.messages])
+    if (!convo?.messages) return
+    setMessages(convo.messages)
+  }, [convo?.messages])
 
   useEffect(() => {
     if (!addMessageMutation.data?.messages) return
@@ -43,7 +41,7 @@ export default function IndexPage() {
   return (
     <AuthGuard role="user">
       <SidebarProvider>
-        <UserSidebar serviceConvoList={serviceConvos.data ?? []} />
+        <UserSidebar serviceConvoList={convos.data ?? []} activeConversationId={conversationId} />
         <SidebarInset className="h-svh overflow-hidden">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b">
             <div className="flex items-center gap-2 px-3">

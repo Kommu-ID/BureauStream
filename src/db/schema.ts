@@ -23,7 +23,7 @@ export const servicesTable = pgTable("services", {
 
 export const conversationsTable = pgTable("conversations", {
   id: uuid().primaryKey().defaultRandom(),
-  service_id: uuid(),
+  service_id: varchar({ length: 255 }),
   service_state: json(),
   user_id: uuid().notNull(),
   messages: json(),

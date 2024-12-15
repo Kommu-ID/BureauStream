@@ -5,6 +5,26 @@ import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { conversationsTable } from "@/db/schema";
 import { z } from "zod";
 import { grok } from "../grok";
+import { MARRIAGE_CERTIFICATE_AGENT, RECEPTION_AGENT, VETERAN_ID_AGENT } from "@/constants/prompts";
+
+const contentMap: Record<string, string> = {
+  '1001': MARRIAGE_CERTIFICATE_AGENT,
+  '1002': VETERAN_ID_AGENT,
+}
+
+const callServiceAgent = async (serviceId: string, messages: Array<any>) => {
+  const content = contentMap[serviceId]
+  if (!content) throw new TRPCError({code:'NOT_FOUND',message: 'Service not found!'})
+  const completion = await grok.chat.completions.create({
+    model: "grok-vision-beta",
+    messages: [
+      { role: "system", content },
+      ...messages,
+    ],
+  });
+  const grokResponse = completion.choices[0].message
+  return [...messages, grokResponse]
+}
 
 const userProcedure = procedure.use(
   async function isAuthed(opts) {
@@ -81,12 +101,56 @@ export const userRouter = router({
     const completion = await grok.chat.completions.create({
       model: "grok-beta",
       messages: [
-        { role: "system", content: "You are a government agent responsible of assisting citizen about their inquiries related to government services. Your main goal is to redirect user to other agents related to their request, make sure to make the user confirm their choices before redirecting. When you're sure of user intent, send \"+++ START PROCESS <ID> +++\". The processes we can handle are: 1001 - Marriage Certificate request, 1002 - Veteran ID application. So you should send \"+++ START PROCESS 1001 +++\" when you're sure the user want to start marriage certificate request process." },
+        { role: "system", content: RECEPTION_AGENT },
         ...existingMessages,
         { role: 'user', content: opts.input.message }
       ],
     });
-    const grokResponse =  completion.choices[0].message
+    const grokResponse = completion.choices[0].message
+
+    if (grokResponse.content?.includes("+++ START PROCESS 1001 +++")) {
+      const responseMessages = await callServiceAgent('1001', [
+        ...existingMessages,
+        { role: 'user', content: opts.input.message },
+      ])
+      const updatedConvo = await db.update(conversationsTable).set({
+        service_id: '1001',
+        service_state: {
+          stage: [1,3],
+          needAdmin: false,
+        },
+        messages: responseMessages
+      }).where(
+          and(
+            eq(conversationsTable.user_id, userId),
+            eq(conversationsTable.id, convoId)
+          )
+        ).returning()
+
+      return updatedConvo[0]
+    }
+
+    if (grokResponse.content?.includes("+++ START PROCESS 1002 +++")) {
+      const responseMessages = await callServiceAgent('1002', [
+        ...existingMessages,
+        { role: 'user', content: opts.input.message },
+      ])
+      const updatedConvo = await db.update(conversationsTable).set({
+        service_id: '1002',
+        service_state: {
+          stage: [1,3],
+          needAdmin: false,
+        },
+        messages: responseMessages
+      }).where(
+          and(
+            eq(conversationsTable.user_id, userId),
+            eq(conversationsTable.id, convoId)
+          )
+        ).returning()
+
+      return updatedConvo[0]
+    }
 
     const updatedConvo = await db.update(conversationsTable).set({
       messages: [
@@ -95,11 +159,45 @@ export const userRouter = router({
         grokResponse,
       ]
     }).where(
-      and(
+        and(
+          eq(conversationsTable.user_id, userId),
+          eq(conversationsTable.id, convoId)
+        )
+      ).returning()
+
+    return updatedConvo[0]
+  }),
+  serviceConvoAddMessage: userProcedure.input(
+    z.object({
+      message: z.string(),
+    })
+  ).mutation(async (opts) => {
+    const userId = opts.ctx.user.sub
+    const convo = await db.query.conversationsTable.findFirst({
+      orderBy: [desc(conversationsTable.modified_at)],
+      where: and(
         eq(conversationsTable.user_id, userId),
-        eq(conversationsTable.id, convoId)
+        isNotNull(conversationsTable.service_id)
       )
-    ).returning()
+    })
+
+    if (!convo) throw new TRPCError({ code:'NOT_FOUND' })
+
+    const existingMessages = Array.isArray(convo?.messages) ? convo.messages : []
+
+    const responseMessages = await callServiceAgent(
+      convo?.service_id ?? '',
+      [...existingMessages, { role: 'user', content: opts.input.message }]
+    )
+
+    const updatedConvo = await db.update(conversationsTable).set({
+      messages: responseMessages
+    }).where(
+        and(
+          eq(conversationsTable.user_id, userId),
+          eq(conversationsTable.id, convo.id)
+        )
+      ).returning()
 
     return updatedConvo[0]
   }),

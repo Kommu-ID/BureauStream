@@ -10,7 +10,6 @@ import { Table, TableCaption, TableHead, TableRow, TableHeader, TableBody,TableC
 import { convoIdMap } from "@/components/user-sidebar";
 import { trpc } from "@/utils/trpc";
 import { useCallback, useState } from "react";
-import { Markdown } from "@/components/markdown";
 import { ChatContentRenderer } from "@/components/chat-content-renderer";
 
 export default function AdminPage() {

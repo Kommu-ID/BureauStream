@@ -10,7 +10,6 @@ import { trpc } from '@/utils/trpc';
 import { ChangeEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import { ChatMessageList } from '@/components/ui/chat/chat-message-list';
 import { useRouter } from 'next/router';
-import { Markdown } from '@/components/markdown';
 import imageCompression from 'browser-image-compression';
 import { ChatContentRenderer } from '@/components/chat-content-renderer';
 

@@ -10,7 +10,6 @@ import { trpc } from '@/utils/trpc';
 import { useCallback, useEffect, useState } from 'react';
 import { ChatMessageList } from '@/components/ui/chat/chat-message-list';
 import { useRouter } from 'next/router';
-import { Markdown } from '@/components/markdown';
 import { ChatContentRenderer } from '@/components/chat-content-renderer';
 
 export default function IndexPage() {

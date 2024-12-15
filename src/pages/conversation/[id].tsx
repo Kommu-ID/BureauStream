@@ -24,9 +24,9 @@ export default function ConversationPage() {
   const onSubmit = useCallback(async (formData: FormData) => {
     const message = formData.get('message')?.toString()
     if (!message) return;
-    const newMessages = await addMessageMutation.mutateAsync({ message })
+    const newMessages = await addMessageMutation.mutateAsync({ message, id: conversationId })
     setMessages(newMessages.messages)
-  }, [addMessageMutation])
+  }, [addMessageMutation, conversationId])
 
   useEffect(() => {
     if (!convo?.messages) return
@@ -38,6 +38,8 @@ export default function ConversationPage() {
     setMessages(addMessageMutation.data?.messages)
   }, [addMessageMutation.data?.messages])
 
+  const serviceState = convo?.service_state as {stage: [number, number], stageName: string} | undefined
+
   return (
     <AuthGuard role="user">
       <SidebarProvider>
@@ -47,6 +49,7 @@ export default function ConversationPage() {
             <div className="flex items-center gap-2 px-3">
               <SidebarTrigger />
               <Separator orientation="vertical" className="mr-2 h-4" />
+              Stage {serviceState?.stage[0]} / {serviceState?.stage[1]} - {serviceState?.stageName}
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">

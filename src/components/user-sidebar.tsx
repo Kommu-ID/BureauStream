@@ -25,8 +25,8 @@ const UserSidebar = ({ activeConversationId, serviceConvoList }: UserSidebarProp
       ongoing: Array<Convo>,
       archive: Array<Convo>
     }>((obj, convo) => {
-        const status = convo.service_state && typeof convo.service_state === 'object' && 'status' in convo.service_state && convo.service_state.status
-        if (status === 'ongoing') return {...obj, ongoing: [...obj.ongoing, convo]}
+        const ongoing = convo.service_state && typeof convo.service_state === 'object' && 'stage' in convo.service_state && Array.isArray(convo.service_state.stage) && convo.service_state.stage[0] !== convo.service_state.stage[1]
+        if (ongoing) return {...obj, ongoing: [...obj.ongoing, convo]}
         return {...obj, archive: [...obj.archive, convo]}
       }, { ongoing: [], archive: []})
   }, [serviceConvoList])
@@ -38,7 +38,7 @@ const UserSidebar = ({ activeConversationId, serviceConvoList }: UserSidebarProp
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <LandmarkIcon className="size-4" />
           </div>
-          BureauStream
+          BUREAUSTREAM
         </div>
         <SidebarSeparator />
       </SidebarHeader>

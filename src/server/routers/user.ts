@@ -6,6 +6,7 @@ import { conversationsTable } from "@/db/schema";
 import { z } from "zod";
 import { grok } from "../grok";
 import { MARRIAGE_CERTIFICATE_AGENT, RECEPTION_AGENT, VETERAN_ID_AGENT } from "@/constants/prompts";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 const contentMap: Record<string, string> = {
   '1001': MARRIAGE_CERTIFICATE_AGENT,
@@ -13,7 +14,7 @@ const contentMap: Record<string, string> = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const callServiceAgent = async (serviceId: string, messages: Array<any>) => {
+const callServiceAgent = async (serviceId: string, messages: Array<any>): Promise<ChatCompletionMessage[]> => {
   const content = contentMap[serviceId]
   if (!content) throw new TRPCError({code:'NOT_FOUND',message: 'Service not found!'})
   const completion = await grok.chat.completions.create({
@@ -118,6 +119,7 @@ export const userRouter = router({
         service_id: '1001',
         service_state: {
           stage: [1,3],
+          stageName: 'Collecting necessary data',
           needAdmin: false,
         },
         messages: responseMessages
@@ -140,6 +142,7 @@ export const userRouter = router({
         service_id: '1002',
         service_state: {
           stage: [1,3],
+          stageName: 'Collecting necessary data',
           needAdmin: false,
         },
         messages: responseMessages
@@ -171,6 +174,7 @@ export const userRouter = router({
   serviceConvoAddMessage: userProcedure.input(
     z.object({
       message: z.string(),
+      id: z.string(),
     })
   ).mutation(async (opts) => {
     const userId = opts.ctx.user.sub
@@ -178,6 +182,7 @@ export const userRouter = router({
       orderBy: [desc(conversationsTable.modified_at)],
       where: and(
         eq(conversationsTable.user_id, userId),
+        eq(conversationsTable.id, opts.input.id),
         isNotNull(conversationsTable.service_id)
       )
     })
@@ -192,7 +197,16 @@ export const userRouter = router({
     )
 
     const updatedConvo = await db.update(conversationsTable).set({
-      messages: responseMessages
+      ...(responseMessages[responseMessages.length - 1].content?.includes("+++ START VERIFICATION +++") ? {
+        service_state: {
+          stage: [2,3],
+          stageName: 'Waiting verification',
+          needAdmin: true,
+        },
+        messages: [...responseMessages.slice(0, -1), { role: 'assistant', content: 'Your data has been sent for verification' }]
+      } : {
+          messages: responseMessages
+        }),
     }).where(
         and(
           eq(conversationsTable.user_id, userId),

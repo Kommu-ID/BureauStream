@@ -67,7 +67,7 @@ const AdminSidebar = () => {
               >
                 <DropdownMenuItem onClick={() => {
                   window.localStorage.removeItem('token')
-                  router.replace('/auth')
+                  router.replace('/admin/auth')
                 }}>
                   <span>Sign out</span>
                 </DropdownMenuItem>

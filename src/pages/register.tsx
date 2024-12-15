@@ -74,12 +74,12 @@ function RegisterForm({
                 <Input id="confirm-password" name="confirm-password" type="password" required />
               </div>
               <Button type="submit" className="w-full">
-                Login
+                Sign up
               </Button>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="underline underline-offset-4">
-                Sign up
+              Already have an account?{" "}
+              <Link href="/auth" className="underline underline-offset-4">
+                  Login
               </Link>
             </div>
             </div>

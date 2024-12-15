@@ -1,7 +1,10 @@
-import { LandmarkIcon, MessageSquarePlusIcon, MessagesSquareIcon } from "lucide-react";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
+import { ChevronUp, LandmarkIcon, MessageSquarePlusIcon, MessagesSquareIcon, User2 } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "./ui/sidebar";
 import { useMemo } from "react";
 import Link from "next/link";
+import { useAuth } from "./auth-provider";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useRouter } from "next/router";
 
 export const convoIdMap: Record<string, string> = {
   '1001': 'Marriage certificate request',
@@ -20,6 +23,8 @@ export type UserSidebarProps = {
 }
 
 const UserSidebar = ({ activeConversationId, serviceConvoList }: UserSidebarProps) => {
+  const {payload} = useAuth()
+  const router = useRouter()
   const { ongoing, archive } = useMemo(() => {
     return serviceConvoList.reduce<{
       ongoing: Array<Convo>,
@@ -94,6 +99,31 @@ const UserSidebar = ({ activeConversationId, serviceConvoList }: UserSidebarProp
           </SidebarGroup>
         )}
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User2 /> {payload?.username}
+                  <ChevronUp className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem onClick={() => {
+                  window.localStorage.removeItem('token')
+                  router.replace('/auth')
+                }}>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

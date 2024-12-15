@@ -12,6 +12,7 @@ const contentMap: Record<string, string> = {
   '1002': VETERAN_ID_AGENT,
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const callServiceAgent = async (serviceId: string, messages: Array<any>) => {
   const content = contentMap[serviceId]
   if (!content) throw new TRPCError({code:'NOT_FOUND',message: 'Service not found!'})

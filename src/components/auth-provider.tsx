@@ -56,7 +56,6 @@ export const useAuth = () => {
 
 export const AuthGuard = ({ role, children }: { role: 'user' | 'admin', children?: ReactNode }) => {
   const { status, payload } = useAuth()
-  console.log('payload', payload)
   const router = useRouter()
 
   useEffect(() => {

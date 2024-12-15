@@ -11,6 +11,7 @@ import { convoIdMap } from "@/components/user-sidebar";
 import { trpc } from "@/utils/trpc";
 import { useCallback, useState } from "react";
 import { Markdown } from "@/components/markdown";
+import { ChatContentRenderer } from "@/components/chat-content-renderer";
 
 export default function AdminPage() {
   const convos = trpc.admin.processList.useQuery()
@@ -80,9 +81,7 @@ export default function AdminPage() {
                     <ChatBubble variant='sent' key={i}>
                       <ChatBubbleAvatar fallback='US' />
                       <ChatBubbleMessage variant='sent'>
-                        <Markdown>
-                          {message.content}
-                        </Markdown>
+                        <ChatContentRenderer content={message.content} />
                       </ChatBubbleMessage>
                     </ChatBubble>
                   )
@@ -92,9 +91,7 @@ export default function AdminPage() {
                     <ChatBubble variant='received' key={i}>
                       <ChatBubbleAvatar fallback='AI' />
                       <ChatBubbleMessage variant='received'>
-                        <Markdown>
-                          {message.content}
-                        </Markdown>
+                        <ChatContentRenderer content={message.content} />
                       </ChatBubbleMessage>
                     </ChatBubble>
                   )

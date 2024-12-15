@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChatMessageList } from '@/components/ui/chat/chat-message-list';
 import { useRouter } from 'next/router';
 import { Markdown } from '@/components/markdown';
+import { ChatContentRenderer } from '@/components/chat-content-renderer';
 
 export default function IndexPage() {
   const router = useRouter()
@@ -60,9 +61,7 @@ export default function IndexPage() {
                       <ChatBubble variant='sent' key={i}>
                         <ChatBubbleAvatar fallback='US' />
                         <ChatBubbleMessage variant='sent'>
-                          <Markdown>
-                            {message.content}
-                          </Markdown>
+                          <ChatContentRenderer content={message.content} />
                         </ChatBubbleMessage>
                       </ChatBubble>
                     )
@@ -72,9 +71,7 @@ export default function IndexPage() {
                       <ChatBubble variant='received' key={i}>
                         <ChatBubbleAvatar fallback='AI' />
                         <ChatBubbleMessage variant='received'>
-                          <Markdown>
-                            {message.content}
-                          </Markdown>
+                          <ChatContentRenderer content={message.content} />
                         </ChatBubbleMessage>
                       </ChatBubble>
                     )

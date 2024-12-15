@@ -173,7 +173,7 @@ export const userRouter = router({
   }),
   serviceConvoAddMessage: userProcedure.input(
     z.object({
-      message: z.string(),
+      message: z.any(),
       id: z.string(),
     })
   ).mutation(async (opts) => {

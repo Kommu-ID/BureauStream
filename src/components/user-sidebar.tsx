@@ -3,7 +3,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { useMemo } from "react";
 import Link from "next/link";
 
-const convoIdMap: Record<string, string> = {
+export const convoIdMap: Record<string, string> = {
   '1001': 'Marriage certificate request',
   '1002': 'Veteran ID application',
 }
